@@ -1,0 +1,107 @@
+{% extends "base.html" %} {% load humanize %} {% block pageContent %}
+
+<!--Section: Content-->
+<section class="text-center">
+    <h4 class="mb-5"><strong>GitHub README.md</strong></h4>
+    <div>
+        <div id="weather-box">
+            <div id="w-spinner-box" class="text-center mt-3" style="display: none;">
+                <div class="spinner-border text-primary" role="status"></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <div class="row justify-content-center">
+            <div class=" col-lg-12 col-md-12 col-sm-12 col-xs-12 card card-default rounded-0 shadow">
+                <div class="card-header">
+                    <h4 class="card-title fw-bold"></h4>
+                </div>
+                <div class="card-body">
+                    <center>
+                        <img src="/media/default/Github_logo.png" alt="" class="img-fluid bg-gradient" id="view-post-banner" style="height: 30%; width: 30%">
+                    </center>
+                    <h4 class="fw-bolder mt-4 text-start">{{ title }}</h4>
+                    <hr>
+                    <div class="lh-1 text-start">
+                        <span class="me-5"><small>Author: <b>sjin1105</b></small></span>
+                    </div>
+                    <style>
+                        table {
+                          border-top: 2px solid rgb(138, 138, 138);
+                          padding: 7px;
+                          width: 100%;
+                        }
+                        th, td {
+                            border-bottom: 2px solid rgb(138, 138, 138);
+                            padding: 7px;
+                        }
+                        th {
+                            background-color: #cfeaff;
+                        }
+                        td {
+                            background-color: #def1ff;
+                        }
+                    </style>
+                    <div class="clear-fix py-3">
+
+                    </div>
+                    <div align="left" class="g-post" id="data-box">
+                        <div id="spinner-box" class="text-center mt-3" style="display: none;">
+                            <div class="spinner-border text-primary" role="status"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    $(function() {
+        const spinnerBox = document.getElementById('spinner-box')
+        const dataBox = document.getElementById('data-box')
+        spinnerBox.style.display = ''
+        $.ajax({
+            type: 'GET',
+            url: "{% url 'git-home' %}",
+            success: function(response){
+                setTimeout(()=>{
+                    spinnerBox.style.display = 'none';
+                    var gititems = ''
+                        gititem = response.git
+                        gititems = gititems.concat(gititem);
+                        $(dataBox).html(gititems);
+                }, 10)
+            },
+            error: function(error){
+                console.log(error)
+                dataBox.innerHTML += `<b><strong>Failed to load the data</strong></b>`
+            }
+        })
+    })
+    $(function() {
+        const spinnerBox = document.getElementById('w-spinner-box')
+        const dataBox = document.getElementById('weather-box')
+        spinnerBox.style.display = ''
+        $.ajax({
+            type: 'GET',
+            url: "{% url 'weather' %}",
+            success: function(response){
+                setTimeout(()=>{
+                    spinnerBox.style.display = 'none';
+                    var weatheritems = ''
+                    weatheritem = response.description + ' / Weather Country : ' +  response.country_code + ' / Cloud : ' + response.cloud 
+                        + '<br>Temp : ' + response.temp + ' / Feel Temp : ' 
+                        + response.feel_temp + ' / Humidity : ' + response.humidity
+                    weatheritems = weatheritems.concat(weatheritem)
+                    $(dataBox).html(weatheritems);
+                }, 10)
+            },
+            error: function(error){
+                console.log(error)
+                dataBox.innerHTML += `<b><strong>Failed to load the data</strong></b>`
+            }
+        })
+    })
+</script>
+{% endblock pageContent %}

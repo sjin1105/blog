@@ -1,0 +1,7 @@
+Pillow
+Django
+requests
+mysqlclient
+markdown
+gunicorn
+psycopg2-binary

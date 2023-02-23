@@ -1,0 +1,86 @@
+{% extends 'base.html' %} {% load humanize %} {% load static %} {% block pageContent %} 
+
+<!--Section: Content-->
+<section class="text-center">
+    <h4 class="mb-5"><strong>{{ category }} Posts</strong></h4>
+    <div class="row justify-content-center">
+        <div class="col-lg-4 col-md-6 col-sm-12 col-xs-12">
+            </div>
+            </div>
+    <div id="spinner-box" class="text-center mt-3" style="display: none;">
+        <div class="spinner-border text-primary" role="status"></div>
+    </div>
+    <div class="row" id="data-box">
+    </div>
+    <div class="row">
+        {% if category.name != 'Gist' %}
+            {% for post in posts %}
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="card shadow border">
+                        <div class="bg-image hover-overlay ripple" data-mdb-ripple-color="light">
+                            <img src="{% if post.banner %}{{ post.banner.url }}{% else %}{{ MEDIA_URL}}/media/default/python-django.png{% endif %}" class="img-fluid post-banner bg-gradient bg-dark" />
+                            <a href="{% url 'view-post' post.id %}">
+                                <div class="mask" style="background-color: rgba(251, 251, 251, 0.15);"></div>
+                            </a>
+                        </div>
+                        <div class="card-body">
+                            <h5 class="card-title">{{ post.title }}</h5>
+                            <div class="card-text truncate-3">{{ post.blog_post|safe }} </div>
+                            <a href="{% url 'view-post' post.id %}" class="btn btn-primary">Read</a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+            {% if not posts %}
+            <center>No Bogs has been posted yet</center>
+            {% endif %}
+        {% endif %}
+    </div>
+</section>
+{% endblock pageContent %} {% block ScriptBlock %}
+<script>
+    $(function() {
+        if ("{{ category.name }}" == 'Gist'){
+            const spinnerBox = document.getElementById('spinner-box')
+            const dataBox = document.getElementById('data-box')
+            spinnerBox.style.display = ''
+            start_loader();
+            $.ajax({
+                type: 'GET',
+                url: "{% url 'gitpost' %}",
+                success: function(response){
+                    setTimeout(()=>{
+                        spinnerBox.style.display = 'none';
+                        var gititems = ''
+                            for (count in response.gists)
+                            {
+                                gititem = `
+                                    <div class="col-lg-4 col-md-6 mb-4">
+                                    <div class="card shadow border">
+                                    <div class="bg-image hover-overlay ripple" data-mdb-ripple-color="light">
+                                        <img src="/media/default/GitHub.png" class="img-fluid post-banner bg-gradient bg-white" />
+                                        <div class="mask" style="background-color: rgba(63, 63, 63, 0.205);"></div>
+                                    </div>
+                                    <div class="card-body">
+                                    <h5 class="card-title"> ` + response.gists[count].name + `</h5><br><form method="post" action="{% url 'git-post' %}">
+                                        {% csrf_token %}
+                                        <button type="submit" name="gist" value="` + response.gists[count].id + `" class="btn btn-primary">Read</button>
+                                    </form>
+                                    </div>
+                                    </div>
+                                    </div>
+                                    `
+                                gititems = gititems.concat(gititem);
+                            }
+                            $(dataBox).html(gititems);
+                    }, 10)
+                    end_loader();
+                },
+                error: function(error){
+                    dataBox.innerHTML += `<b><strong>Failed to load the data</strong></b>`
+                }
+            })
+        }
+    })
+</script>
+{% endblock ScriptBlock %}
